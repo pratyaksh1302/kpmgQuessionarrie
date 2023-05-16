@@ -1,6 +1,7 @@
 param dbTier object
 param NSGGroups array
 param nsgrules array
+param vnets object
 
 module dblayer 'modules/sqlsvr.bicep' = {
   name: 'deployment1'
@@ -16,6 +17,17 @@ module nsgCreate 'modules/vmnsg.bicep' = {
   params: {
     NSGGroups: NSGGroups
     nsgrules: nsgrules
+  }
+  dependsOn: [
+    dblayer
+  ]
+}
+
+module vnetCreate 'modules/vnet.bicep' = {
+  name: 'deployment3'
+  scope: resourceGroup()
+  params: {
+    vnets: vnets
   }
   dependsOn: [
     dblayer
