@@ -11,4 +11,7 @@ resource nsgsRules 'Microsoft.Network/networkSecurityGroups/securityRules@2022-0
   name: rule.Name
   parent: nsgs[i]
   properties: rule.properties
-}] 
+}]
+
+output nsgResourceId1 string = nsgs[0].id
+output nsgResourceId2 string = nsgs[1].id
