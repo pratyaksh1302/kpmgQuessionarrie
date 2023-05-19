@@ -1,8 +1,8 @@
 param location string = 'eastus'
 param dbTier object = {
   sqlServerName: 'pratsqlserver'
-  username: 'pratyaksh675'
-  password: 'Samaira@1234'
+  username: ''
+  password: ''
 
 }
 param NSGGroups array = [
