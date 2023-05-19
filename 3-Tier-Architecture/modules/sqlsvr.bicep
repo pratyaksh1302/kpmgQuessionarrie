@@ -1,9 +1,10 @@
 param dbTier object
+param location string
 
 
 resource sqlServerName_resource 'Microsoft.Sql/servers@2022-02-01-preview' = {
   name: dbTier.sqlServerName
-  location: dbTier.location
+  location: location
   tags: {
     tier: 'data'
   }
@@ -21,8 +22,8 @@ resource sqlServerName_sqlServerDatabaseName 'Microsoft.Sql/servers/databases@20
     name: 'S0'
     tier: 'Standard'
   }
-  name: dbTier.dbName
-  location: dbTier.location
+  name: '${sqlServerName_resource.name}-DB'
+  location: location
   tags: {
     tier: 'data'
   }
