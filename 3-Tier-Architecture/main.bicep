@@ -6,6 +6,10 @@ param deploymentUrl string = 'https://raw.githubusercontent.com/daveRendon/n-tie
 
 param dbTier object = {
   sqlServerName: 'pratsqlserver'
+param dbTier object = {
+  sqlServerName: 'pratsqlserver'
+  username: ''
+  password: ''
 }
 param NSGGroups array = [
   {
@@ -24,6 +28,27 @@ param NSGGroups array = [
 param pipObj object = {
   name: 'web-vm-nic-pip'
 }
+// param nsgrules array = [
+//   {
+//     properties: {
+//       securityRules: [
+//         {
+//           name: 'http'
+//           properties: {
+//             protocol: 'Tcp'
+//             sourcePortRange: '*'
+//             destinationPortRange: '80'
+//             sourceAddressPrefix: '*'
+//             destinationAddressPrefix: '*'
+//             access: 'Allow'
+//             priority: 300
+//             direction: 'Inbound'
+//           }
+//         }
+//       ]
+//     }
+//   }
+// ]
  param vnets object = {
   name: 'demo-vnet'
   addressPrefix: '10.124.190.0/24'
@@ -68,7 +93,6 @@ param nicNames array = [
     }
   }
 ]
-
 param demovms array = [
   {
     name: 'demo-web-vm'
@@ -111,7 +135,6 @@ param demovms array = [
     }
   }
 ]
-
 module dbCreate 'modules/sqlsvr.bicep' = {
   name: 'deployment1'
   scope: resourceGroup()
@@ -156,6 +179,9 @@ module sqlSvrRuleCreate 'modules/sqlsvrRule.bicep' = {
   dependsOn: [
     dbCreate
     vnetCreate
+  }
+  dependsOn: [
+    dbCreate
   ]
 }
 
@@ -170,6 +196,7 @@ module pipCreate 'modules/pip.bicep' = {
     dbCreate
     //vnetCreate
     // nsgCreate
+    nsgCreate
   ]
 }
 

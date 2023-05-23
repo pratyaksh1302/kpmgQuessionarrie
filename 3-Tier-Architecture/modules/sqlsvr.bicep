@@ -4,7 +4,6 @@ param username string
 @secure()
 param password string
 
-
 resource sqlServerName_resource 'Microsoft.Sql/servers@2022-02-01-preview' = {
   name: dbTier.sqlServerName
   location: location
