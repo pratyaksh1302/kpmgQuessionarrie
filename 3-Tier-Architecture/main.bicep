@@ -1,9 +1,15 @@
 param location string = 'eastus'
+param username string = ''
+@secure()
+param password string = ''
+param deploymentUrl string = 'https://raw.githubusercontent.com/daveRendon/n-tier-architecture/master/Deployment/'
+
+param dbTier object = {
+  sqlServerName: 'pratsqlserver'
 param dbTier object = {
   sqlServerName: 'pratsqlserver'
   username: ''
   password: ''
-
 }
 param NSGGroups array = [
   {
@@ -51,6 +57,14 @@ param pipObj object = {
   appSubnetName: 'app-subnet'
   appSubnetPrefix: '10.124.190.32/27'
  }
+ param sqlRules array = [
+  {
+    sqlSvrName: 'pratsqlserver'
+    ruleName: 'demo-vnet-biz-rule'
+    vnetName: 'demo-vnet'
+    subnetName: 'app-subnet'
+  }
+ ]
 param nicNames array = [
   {
     name: 'web-nic'
@@ -79,12 +93,55 @@ param nicNames array = [
     }
   }
 ]
-
+param demovms array = [
+  {
+    name: 'demo-web-vm'
+    tags: {
+      tier: 'presentation'
+    }
+    nicName: 'web-nic'
+    extName: 'apache-ext'
+    settings: {
+      skipDos2Unix: true
+    }
+    protectedSettings: {
+      commandToExecute: 'sh setup-votingweb.sh'
+      fileUris: [
+        uri('${deploymentUrl}', 'setup-votingweb.sh')
+        uri('${deploymentUrl}', 'votingweb.conf')
+        uri('${deploymentUrl}', 'votingweb.service')
+        uri('${deploymentUrl}', 'votingweb.zip')
+      ]
+    }
+  }
+  {
+    name: 'demo-app-vm'
+    tags: {
+      tier: 'application'
+    }
+    nicName: 'app-nic'
+    extName: 'apache-ext'
+    settings: {
+      skipDos2Unix: true
+      fileUris: [
+        uri('${deploymentUrl}', 'setup-votingdata.sh')
+        uri('${deploymentUrl}', 'votingdata.conf')
+        uri('${deploymentUrl}', 'votingdata.service')
+        uri('${deploymentUrl}', 'votingdata.zip')
+      ]
+    }
+    protectedSettings: {
+      commandToExecute: 'sh setup-votingdata.sh ${dbTier.sqlServerName} ${username} ${password}'
+    }
+  }
+]
 module dbCreate 'modules/sqlsvr.bicep' = {
   name: 'deployment1'
   scope: resourceGroup()
   params: {
     dbTier: dbTier
+    username: username
+    password: password
     location: location
   }
 }
@@ -114,6 +171,20 @@ module vnetCreate 'modules/vnet.bicep' = {
   ]
 }
 
+module sqlSvrRuleCreate 'modules/sqlsvrRule.bicep' = {
+  name: 'deploymentsqlRule'
+  params: {
+    sqlRules: sqlRules
+  }
+  dependsOn: [
+    dbCreate
+    vnetCreate
+  }
+  dependsOn: [
+    dbCreate
+  ]
+}
+
 module pipCreate 'modules/pip.bicep' = {
   name: 'deployment4'
   scope: resourceGroup()
@@ -124,6 +195,7 @@ module pipCreate 'modules/pip.bicep' = {
   dependsOn: [
     dbCreate
     //vnetCreate
+    // nsgCreate
     nsgCreate
   ]
 }
@@ -138,6 +210,24 @@ module nicCreate 'modules/nic.bicep' = {
   dependsOn: [
     dbCreate
     vnetCreate
+    pipCreate
+  ]
+}
+
+module vmCreate 'modules/vm.bicep' = {
+  name: 'vmdeployment'
+  params: {
+    demovms: demovms
+    location: location
+    password: password
+    username: username
+  }
+  dependsOn: [
+    dbCreate
+    sqlSvrRuleCreate
+    vnetCreate
+    // nsgCreate
+    nicCreate
     pipCreate
   ]
 }

@@ -1,6 +1,8 @@
 param dbTier object
 param location string
-
+param username string
+@secure()
+param password string
 
 resource sqlServerName_resource 'Microsoft.Sql/servers@2022-02-01-preview' = {
   name: dbTier.sqlServerName
@@ -10,8 +12,8 @@ resource sqlServerName_resource 'Microsoft.Sql/servers@2022-02-01-preview' = {
   }
   
   properties: {
-    administratorLogin: dbTier.username
-    administratorLoginPassword: dbTier.password
+    administratorLogin: username
+    administratorLoginPassword: password
     version: '12.0'
   }
 }
