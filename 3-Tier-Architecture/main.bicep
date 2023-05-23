@@ -6,10 +6,6 @@ param deploymentUrl string = 'https://raw.githubusercontent.com/daveRendon/n-tie
 
 param dbTier object = {
   sqlServerName: 'pratsqlserver'
-param dbTier object = {
-  sqlServerName: 'pratsqlserver'
-  username: ''
-  password: ''
 }
 param NSGGroups array = [
   {
