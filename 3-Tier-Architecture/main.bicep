@@ -2,7 +2,7 @@ param location string = 'eastus'
 param username string = ''
 @secure()
 param password string = ''
-param deploymentUrl string = 'https://raw.githubusercontent.com/daveRendon/n-tier-architecture/master/Deployment/'
+param deploymentUrl string = 'https://raw.githubusercontent.com/pratyaksh1302/kpmgQuessionarrie/main/3-Tier-Architecture/Deployment/'
 
 param dbTier object = {
   sqlServerName: 'pratsqlserver'
