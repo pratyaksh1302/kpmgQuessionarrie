@@ -1,8 +1,9 @@
 param vnets object
+param location string
 
 resource vnetName 'Microsoft.Network/virtualNetworks@2018-08-01' = {
   name: vnets.name
-  location: vnets.location
+  location: location
   properties: {
     addressSpace: {
       addressPrefixes: [
@@ -17,14 +18,14 @@ resource vnetName 'Microsoft.Network/virtualNetworks@2018-08-01' = {
         }
       }
       {
-        name: vnets.bizSubnetName
+        name: vnets.appSubnetName
         properties: {
-          addressPrefix: vnets.bizSubnetPrefix
+          addressPrefix: vnets.appSubnetPrefix
           serviceEndpoints: [
             {
               service: 'Microsoft.Sql'
               locations: [
-                vnets.location
+                location
               ]
             }
           ]

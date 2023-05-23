@@ -1,8 +1,9 @@
 param nicNames array 
+param location string
 
 resource webVMNicName 'Microsoft.Network/networkInterfaces@2018-08-01' = [for nic in nicNames: {
   name: nic.name
-  location: nic.location
+  location: location
   tags: {
     tier: nic.tier
   }
@@ -11,13 +12,13 @@ resource webVMNicName 'Microsoft.Network/networkInterfaces@2018-08-01' = [for ni
       {
         name: 'ipconfig1'
         properties: {
-          privateIPAddress: '10.1.0.4'
+          privateIPAddress: nic.privateIPAddress
           privateIPAllocationMethod:contains(nic, 'privateIPAllocationMethod') ? nic.privateIPAllocationMethod : 'Static'
           publicIPAddress: contains(nic, 'publicIPAddress') ? {
-            id: nic.pipId
+            id: resourceId('Microsoft.Network/publicIPAddresses', nic.publicIPAddress.publicIpAddressName)
           } : null
           subnet: {
-            id: nic.subnetid
+            id: resourceId('Microsoft.Network/virtualNetworks/subnets', nic.vnetName, nic.subnetName)
           }
           primary: true
           privateIPAddressVersion: 'IPv4'
@@ -28,7 +29,7 @@ resource webVMNicName 'Microsoft.Network/networkInterfaces@2018-08-01' = [for ni
     enableIPForwarding: false
     primary: true
     networkSecurityGroup: {
-      id: nic.nsgId
+      id: resourceId('Microsoft.Network/networkSecurityGroups', nic.networkSecurityGroup.nsgName)
     }
   }
 }]

@@ -1,4 +1,5 @@
 param pipObj object
+param location string
 
 resource webVMNicPIPName 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
   sku: {
@@ -6,7 +7,7 @@ resource webVMNicPIPName 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
     tier: 'Regional'
   }
   name: pipObj.name
-  location: pipObj.location
+  location: location
   tags: {
     tier: 'presentation'
   }
